@@ -1,0 +1,655 @@
+Program.Sub.ScreenSU.Start
+gui.F_SimPart..create
+gui.F_SimPart..caption("Similar Part")
+gui.F_SimPart..size(13140,7965)
+gui.F_SimPart..position(0,0)
+gui.F_SimPart..event(unload,subExit)
+gui.F_SimPart..alwaysontop(False)
+gui.F_SimPart..fontname("Arial")
+gui.F_SimPart..fontsize(8)
+gui.F_SimPart..forecolor(0)
+gui.F_SimPart..fontstyle(,,,,)
+gui.F_SimPart..BackColor(-2147483633)
+gui.F_SimPart..controlbox(True)
+gui.F_SimPart..maxbutton(True)
+gui.F_SimPart..minbutton(True)
+gui.F_SimPart..mousepointer(0)
+gui.F_SimPart..moveable(True)
+gui.F_SimPart..sizeable(True)
+gui.F_SimPart..ShowInTaskBar(True)
+gui.F_SimPart..titlebar(True)
+gui.F_SimPart.cmdAdd.create(button)
+gui.F_SimPart.cmdAdd.caption("&Add")
+gui.F_SimPart.cmdAdd.visible(True)
+gui.F_SimPart.cmdAdd.size(1020,420)
+gui.F_SimPart.cmdAdd.zorder(0)
+gui.F_SimPart.cmdAdd.position(200,6900)
+gui.F_SimPart.cmdAdd.enabled(True)
+gui.F_SimPart.cmdAdd.fontname("Arial")
+gui.F_SimPart.cmdAdd.fontsize(8)
+gui.F_SimPart.cmdAdd.event(click,cmdadd_click)
+gui.F_SimPart.cmdDelete.create(button)
+gui.F_SimPart.cmdDelete.caption("&Delete")
+gui.F_SimPart.cmdDelete.visible(True)
+gui.F_SimPart.cmdDelete.size(1005,420)
+gui.F_SimPart.cmdDelete.zorder(0)
+gui.F_SimPart.cmdDelete.position(1800,6900)
+gui.F_SimPart.cmdDelete.enabled(True)
+gui.F_SimPart.cmdDelete.fontname("Arial")
+gui.F_SimPart.cmdDelete.fontsize(8)
+gui.F_SimPart.cmdDelete.event(click,subDeleteOpt)
+gui.F_SimPart.gsSimPart.create(gsflexgrid)
+gui.F_SimPart.gsSimPart.FixedRows(0)
+gui.F_SimPart.gsSimPart.FixedCols(0)
+gui.F_SimPart.gsSimPart.visible(True)
+gui.F_SimPart.gsSimPart.size(12525,6225)
+gui.F_SimPart.gsSimPart.zorder(0)
+gui.F_SimPart.gsSimPart.position(200,200)
+gui.F_SimPart.gsSimPart.enabled(True)
+
+
+gui.F_DelSimPart..create
+gui.F_DelSimPart..caption("Delete association - both ways")
+gui.F_DelSimPart..size(4530,1905)
+gui.F_DelSimPart..position(0,0)
+gui.F_DelSimPart..alwaysontop(False)
+gui.F_DelSimPart..fontname("Arial")
+gui.F_DelSimPart..fontsize(8)
+gui.F_DelSimPart..forecolor(0)
+gui.F_DelSimPart..fontstyle(,,,,)
+gui.F_DelSimPart..BackColor(-2147483633)
+gui.F_DelSimPart..controlbox(False)
+gui.F_DelSimPart..maxbutton(True)
+gui.F_DelSimPart..minbutton(True)
+gui.F_DelSimPart..mousepointer(0)
+gui.F_DelSimPart..moveable(True)
+gui.F_DelSimPart..sizeable(True)
+gui.F_DelSimPart..ShowInTaskBar(True)
+gui.F_DelSimPart..titlebar(True)
+gui.F_DelSimPart.chkDelSimPart.create(checkbox)
+gui.F_DelSimPart.chkDelSimPart.caption("Delete association Similar Part with Part")
+gui.F_DelSimPart.chkDelSimPart.visible(True)
+gui.F_DelSimPart.chkDelSimPart.size(3810,255)
+gui.F_DelSimPart.chkDelSimPart.zorder(0)
+gui.F_DelSimPart.chkDelSimPart.position(300,300)
+gui.F_DelSimPart.chkDelSimPart.enabled(True)
+gui.F_DelSimPart.chkDelSimPart.alignment(0)
+gui.F_DelSimPart.chkDelSimPart.fontname("Arial")
+gui.F_DelSimPart.chkDelSimPart.fontsize(8)
+gui.F_DelSimPart.cmdDelCont.create(button)
+gui.F_DelSimPart.cmdDelCont.caption("Continue")
+gui.F_DelSimPart.cmdDelCont.visible(True)
+gui.F_DelSimPart.cmdDelCont.size(855,375)
+gui.F_DelSimPart.cmdDelCont.zorder(0)
+gui.F_DelSimPart.cmdDelCont.position(1800,800)
+gui.F_DelSimPart.cmdDelCont.enabled(True)
+gui.F_DelSimPart.cmdDelCont.fontname("Arial")
+gui.F_DelSimPart.cmdDelCont.fontsize(8)
+gui.F_DelSimPart.cmdDelCont.event(click,cmddelete_click)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Variable.Global.sPart.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'Coded by: Jing Zhang
+'Hook Number: 10210 for inventory master
+'Show similar parts for a given part, has the option to add inventory parts to the similar parts list and delete similar part from the similar part list.
+'Project Start Date: 1/12/2012
+'Rev1: RRC 08/14/2012
+'Mod1: RRC 10/18/2012
+
+'Hooks:
+'10120 Inventory Master Populate
+'10210 Inventory Master Script 1 button
+
+'12010 Order Lines Populate
+'12410 Order Lines Script 1 button
+'12045 Order Lines Part Load (Color)
+'12705 Order Lines Line Changed (Color)
+
+'14045 Supply and Demand Populate
+'14070 Supply and Demand Script 1 button
+'14050 Supply and Demand Part Load (Color)
+
+'34410 Auto Purchasing Populate
+'34430 Auto Purchasing Script 1 button
+
+'11210 Router Lines Populate
+'11410 Router Lines Script 1 button
+
+'16385 BOM Lines Populate
+'16475 BOM Lines Script 1 button
+
+'16761 WO Seq Maint Populate
+'16768 WO Seq Maint Script 1 button
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+V.Local.iExit.Declare(Long,0)
+
+' Inventory Master Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,10120)
+	Variable.Passed.000068.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+' Execute Similar Part from Script 1 btn
+F.Intrinsic.Control.If(V.Caller.Hook,=,10210)
+	F.Intrinsic.String.GSSPartString(V.Passed.000007,V.Passed.000008,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+' Order Lines Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,12010)
+	Variable.Passed.000162.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+' Execute Similar Part from Script 1 btn
+F.Intrinsic.Control.If(V.Caller.Hook,=,12410)
+	F.Intrinsic.String.GSSPartString(V.Passed.000052,V.Passed.000053,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+	F.Intrinsic.Control.CallSub(Changecolorol)
+F.Intrinsic.Control.EndIf
+
+'Change Color if Exists Similar Part (Order Lines) Part Change
+F.Intrinsic.Control.If(V.Caller.Hook,=,12045)
+	F.Intrinsic.Control.CallSub(Changecolorol)
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+
+'Change Color if Exists Similar Part (Order Lines) Line Changed
+F.Intrinsic.Control.If(V.Caller.Hook,=,12705)
+	F.Intrinsic.Control.CallSub(Changecolorol)
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+
+' Supply and Demand Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,14045)
+	Variable.Passed.000252.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+' Execute Similar Part from Script 1 btn
+F.Intrinsic.Control.If(V.Caller.Hook,=,14070)
+	F.Intrinsic.String.GSSPartString(V.Passed.000003,V.Passed.000099,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+	F.Intrinsic.Control.CallSub(Changecolorsd)
+F.Intrinsic.Control.EndIf
+
+'Change Color if Exists Similar Part (Supply and Demand) Part Load
+F.Intrinsic.Control.If(V.Caller.Hook,=,14050)
+	F.Intrinsic.Control.CallSub(Changecolorsd)
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+
+' Auto Purchasing Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,34410)
+	Variable.Passed.000174.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+' Execute Similar Part from Script 1 btn
+F.Intrinsic.Control.If(V.Caller.Hook,=,34430)
+	F.Intrinsic.String.Trim(V.Passed.000001,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+'Router Lines Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,11210)
+	Variable.Passed.000201.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+'Router Lines Screen from Script 1 bt
+F.Intrinsic.Control.If(V.Caller.Hook,=,11410,"AND",V.Passed.000013,=,"Material")
+	F.Intrinsic.String.GSSPartString(V.Passed.000112,V.Passed.000133,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+'BOM Lines Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,16385)
+	Variable.Passed.000030.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+'Router Lines Screen from Script 1 bt
+F.Intrinsic.Control.If(V.Caller.Hook,=,16475)
+	F.Intrinsic.String.GSSPartString(V.Passed.000002,V.Passed.000074,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+'WO Maint Seq Screen
+' Populate Hook
+F.Intrinsic.Control.If(V.Caller.Hook,=,16761)
+	Variable.Passed.000041.Set("Similar Part")
+	V.Local.iExit.Set(1)
+F.Intrinsic.Control.EndIf
+'WO Maint Seq Screen from Script 1 bt
+F.Intrinsic.Control.If(V.Caller.Hook,=,16768)
+	F.Intrinsic.String.GSSPartString(V.Passed.000003,V.Passed.000004,V.Global.sPart)
+	F.Intrinsic.String.Trim(V.Global.sPart,V.Global.sPart)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Local.iExit,=,1)
+	F.Intrinsic.Control.CallSub(Subexit)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+program.sub.cmdadd_click.start
+F.Intrinsic.Control.SetErrorHandler("cmdadd_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.local.sRet.Declare(String)
+V.Local.sPartadd.Declare(String)
+V.local.iWidths.Declare(Long)
+V.Local.sSql.Declare(String)
+V.Local.sSqlexist.Declare(String)
+
+'105 Inventory-Part Browser
+
+F.Intrinsic.UI.Browser(105,"",Variable.Local.sRet)
+
+F.intrinsic.control.If(Variable.local.sRet,"<>","***CANCEL***")
+	F.intrinsic.string.split(Variable.local.sRet,"*!*",Variable.local.sRet)
+	F.Intrinsic.String.Trim(Variable.Local.sRet(0),Variable.Local.sRet(0))
+	V.Local.sPartadd.set(Variable.local.sRet(0))
+
+	F.Intrinsic.Control.If(V.Local.sPartadd,"=",Variable.Global.sPart)
+			F.Intrinsic.UI.Msgbox("This is the same part, please add a different part as similar part!")
+	F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("SELECT * FROM GCG_3167_INV_SIMPART WHERE PART ='{0}' AND PARTSIM = '{1}'",V.Global.sPart,V.Local.sPartadd,V.Local.sSqlexist)
+			F.ODBC.Connection!conx.OpenRecordsetRO("rstexist",V.Local.sSqlexist)
+			F.Intrinsic.Control.If(V.ODBC.conx!rstexist.EOF,"=",True)
+			'If there is no duplicate record
+				F.ODBC.Connection!Conx.OpenRecordsetRW("rstAddPart","SELECT * FROM GCG_3167_INV_SIMPART")
+				F.ODBC.conx!rstAddPart.AddNew
+				F.ODBC.conx!rstAddPart.Set!PART(V.Local.sPartadd)
+				F.ODBC.conx!rstAddPart.Set!PARTSIM(V.Global.sPart)
+				F.ODBC.conx!rstAddPart.AddNew
+				F.ODBC.conx!rstAddPart.Set!PART(V.Global.sPart)
+				F.ODBC.conx!rstAddPart.Set!PARTSIM(V.Local.sPartadd)
+				F.ODBC.Conx!rstAddPart.Update
+				F.ODBC.Conx!rstAddPart.Close
+				F.ODBC.conx!rstexist.Close
+				F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+			F.Intrinsic.Control.Else
+				F.Intrinsic.UI.Msgbox("This part is already in the similar part list")
+				F.ODBC.conx!rstexist.Close
+			F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdadd_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+program.sub.cmdadd_click.end
+
+program.sub.cmddelete_click.start
+F.Intrinsic.Control.SetErrorHandler("cmddelete_click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.sSimPart.Declare(String)
+V.Local.delRow.Declare(String)
+V.Local.sSQL.Declare(String)
+
+V.Local.delRow.Set(V.Screen.F_SimPart!gsSimPart.Row)
+Gui.F_DelSimPart..Visible(false)
+F.Intrinsic.Control.If(V.Local.delRow,=,0)
+	F.Intrinsic.UI.Msgbox("no record to be deleted")
+	Gui.F_DelSimPart..Show(False)
+	Gui.F_SimPart..Show(True)
+F.Intrinsic.Control.Else
+	Gui.F_SimPart.gsSimPart.GetTextMatrix(0,V.Local.delRow,V.Local.sSimPart)
+	F.Intrinsic.String.Build("DELETE FROM GCG_3167_INV_SIMPART WHERE PART ='{0}' AND PARTSIM = '{1}'",V.Global.sPart,V.Local.sSimPart,V.Local.sSQL)
+	F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+
+	F.Intrinsic.Control.If(V.Screen.F_DelSimPart!chkDelSimPart.Value,=,1)
+		F.Intrinsic.String.Build("DELETE FROM GCG_3167_INV_SIMPART WHERE PART ='{0}' AND PARTSIM = '{1}'",V.Local.sSimPart,V.Global.sPart,V.Local.sSQL)
+		F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+	F.Intrinsic.Control.EndIf
+
+	Gui.F_DelSimPart..Visible(False)
+	Gui.F_SimPart..Visible(True)
+	F.Intrinsic.Control.CallSub(Subsimilarpartquery)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmddelete_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+program.sub.cmddelete_click.end
+
+program.sub.subExit.start
+F.Intrinsic.Control.SetErrorHandler("subExit_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!conx.Close
+Function.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("subExit_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+program.sub.subExit.end
+
+Program.Sub.subSimilarPartQuery.Start
+F.Intrinsic.Control.SetErrorHandler("subSimilarPartQuery_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.iCT.Declare(Long)
+V.Local.i.Declare(Long)
+V.Local.i.Set(1)
+V.Local.sLoc.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.sSqlcount.Declare(String)
+V.local.sSqlsimilar.Declare(String)
+
+F.Intrinsic.Control.If(V.Global.sPart,=,"")
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndIf
+
+'see if there is any similar part for the part
+F.Intrinsic.String.Build("SELECT * FROM GCG_3167_INV_SIMPART, V_INVENTORY_MSTR WHERE GCG_3167_INV_SIMPART.PARTSIM = V_INVENTORY_MSTR.PART AND GCG_3167_INV_SIMPART.PART ='{0}' Order by PARTSIM",Variable.Global.sPart,Variable.local.sSqlsimilar)
+'see how many similar parts for the part
+F.Intrinsic.String.Build("SELECT Count(*) AS iCT FROM GCG_3167_INV_SIMPART, V_INVENTORY_MSTR WHERE GCG_3167_INV_SIMPART.PARTSIM = V_INVENTORY_MSTR.PART AND GCG_3167_INV_SIMPART.PART='{0}'",Variable.Global.sPart,Variable.local.sSqlcount)
+F.ODBC.Connection!conx.OpenRecordsetRO("rstcount",Variable.Local.sSqlcount)
+F.ODBC.Connection!conx.OpenRecordsetRO("rstsimilarpart",Variable.Local.sSqlsimilar)
+
+F.Intrinsic.Control.If(V.ODBC.conx!rstsimilarpart.EOF,"<>",True)
+' if there is record
+	V.Local.iCT.Set(V.ODBC.Conx!rstcount.FieldValLong!iCT)
+F.Intrinsic.Control.Else
+	V.Local.iCT.Set(1)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Math.Add(V.Local.iCT,1,V.Local.iCT)
+Gui.F_SimPart.gsSimPart.Cols(7)
+Gui.F_SimPart.gsSimPart.Rows(V.Local.iCT)
+
+'Build Styles for columns
+Gui.F_SimPart.gsSimPart.BuildStyle(1,0,"format","alignment",2)
+Gui.F_SimPart.gsSimPart.BuildStyle(1,1,"format","alignment",2)
+Gui.F_SimPart.gsSimPart.BuildStyle(1,2,"format","alignment",2)
+
+'Apply style 1 for Row 0
+Gui.F_SimPart.gsSimPart.ApplyStyle(0,1)
+
+Gui.F_SimPart.gsSimPart.ColWidth(0,2500)
+Gui.F_SimPart.gsSimPart.ColWidth(1,500)
+Gui.F_SimPart.gsSimPart.ColWidth(2,3000)
+Gui.F_SimPart.gsSimPart.ColWidth(3,1500)
+Gui.F_SimPart.gsSimPart.ColWidth(4,1500)
+Gui.F_SimPart.gsSimPart.ColWidth(5,1500)
+Gui.F_SimPart.gsSimPart.ColWidth(6,1500)
+
+'Setup Flex Grid Header Row
+Gui.F_SimPart.gsSimPart.TextMatrix(0,0,"Part")
+Gui.F_SimPart.gsSimPart.TextMatrix(1,0,"Loc")
+Gui.F_SimPart.gsSimPart.TextMatrix(2,0,"Description")
+Gui.F_SimPart.gsSimPart.TextMatrix(3,0,"Cost")
+Gui.F_SimPart.gsSimPart.TextMatrix(4,0,"Alt Cost")
+Gui.F_SimPart.gsSimPart.TextMatrix(5,0,"Price")
+Gui.F_SimPart.gsSimPart.TextMatrix(6,0,"Qty Onhand")
+
+'Create Flex grid Rows
+F.Intrinsic.Control.If(V.ODBC.Conx!rstsimilarpart.EOF,"<>",True)
+	F.Intrinsic.Control.For(V.Local.i,1,V.Local.iCT,1)
+		F.Intrinsic.Control.If(V.ODBC.conx!rstsimilarpart.EOF,"=",True)
+			F.Intrinsic.Control.Exitfor(V.Local.i)
+		F.Intrinsic.Control.Else
+			'Apply Style 1 to Row 1 till last Row
+		        Gui.F_SimPart.gsSimPart.ApplyStyle(V.Local.i,1)
+               	''Set recordset data to cells
+			Gui.F_SimPart.gsSimPart.TextMatrix(0,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!PARTSIM)
+			Gui.F_SimPart.gsSimPart.TextMatrix(1,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!LOCATION)
+	 		Gui.F_SimPart.gsSimPart.TextMatrix(2,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!Description)
+			Gui.F_SimPart.gsSimPart.TextMatrix(3,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!AMT_Cost)
+			Gui.F_SimPart.gsSimPart.TextMatrix(4,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!AMT_Alt_Cost)
+			Gui.F_SimPart.gsSimPart.TextMatrix(5,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!AMT_Price)
+			Gui.F_SimPart.gsSimPart.TextMatrix(6,V.Local.i,V.ODBC.Conx!rstsimilarpart.FIELDVALTRIM!QTY_Onhand)
+			F.ODBC.Conx!rstsimilarpart.MoveNext
+	F.Intrinsic.Control.Next(V.Local.i)
+	F.Intrinsic.Control.EndIf
+	Gui.F_SimPart.gsSimPart.FixedRows(1)
+	Gui.F_SimPart..Show(true)
+	F.ODBC.Conx!rstsimilarpart.Close
+	F.ODBC.Conx!rstcount.Close
+
+F.Intrinsic.Control.Else
+	' EOF is true, no similar parts
+	
+	Gui.F_SimPart.gsSimPart.Rows(1)
+	Gui.F_SimPart.gsSimPart.Cols(7)
+
+	'Build Styles for columns
+	Gui.F_SimPart.gsSimPart.BuildStyle(1,0,"format","alignment",2)
+	Gui.F_SimPart.gsSimPart.BuildStyle(1,1,"format","alignment",2)
+	Gui.F_SimPart.gsSimPart.BuildStyle(1,2,"format","alignment",2)
+
+	'Apply style 1 for Row 0
+	Gui.F_SimPart.gsSimPart.applystyle(0,1)
+	
+	'Setup Flex Grid Header Row
+	Gui.F_SimPart.gsSimPart.TextMatrix(0,0,"Part")
+	Gui.F_SimPart.gsSimPart.TextMatrix(1,0,"Loc")
+	Gui.F_SimPart.gsSimPart.TextMatrix(2,0,"Description")
+	Gui.F_SimPart.gsSimPart.TextMatrix(3,0,"Cost")
+	Gui.F_SimPart.gsSimPart.TextMatrix(4,0,"Alt Cost")
+	Gui.F_SimPart.gsSimPart.TextMatrix(5,0,"Price")
+	Gui.F_SimPart.gsSimPart.TextMatrix(6,0,"Qty Onhand")
+	
+	'add fixed row after loading data into flex grid to give the button like look
+	'Fix Flex Grid Header
+	Gui.F_SimPart.gsSimPart.FixedRows(1)
+	Gui.F_SimPart..Show(true)
+	'F.Intrinsic.UI.Msgbox("There is no similar part now, you can click Add button to add similar part or click Exit button to exit")
+	F.ODBC.Conx!rstsimilarpart.Close
+	F.ODBC.Conx!rstcount.Close
+
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("subSimilarPartQuery_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.subSimilarPartQuery.End
+
+Program.Sub.subDeleteOpt.Start
+F.Intrinsic.Control.SetErrorHandler("subDeleteOpt_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+Gui.F_SimPart..Visible("False")
+Gui.F_DelSimPart..Show("True")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("subDeleteOpt_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.subDeleteOpt.End
+
+Program.Sub.ChangeColorOL.Start
+F.Intrinsic.Control.SetErrorHandler("ChangeColorOL_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+Variable.Local.sPart.Declare(String)
+Variable.Local.sSql.Declare(String)
+
+Function.Intrinsic.String.GSSPartString(Variable.Passed.000052,Variable.Passed.000053,Variable.Local.sPart)
+F.Intrinsic.String.Trim(V.Local.sPart,V.Local.sPart)
+Function.Intrinsic.String.Build("SELECT * FROM GCG_3167_INV_SIMPART WHERE PART = '{0}'",Variable.Local.sPart,Variable.Local.sSql)
+Function.ODBC.Connection!conx.OpenRecordsetRO("rst1",Variable.Local.sSql)
+
+Function.Intrinsic.Control.If(Variable.ODBC.conx!rst1.EOF,=,False)
+	' Note found change color of notes button
+	Function.Intrinsic.Variable.SetProperty("000052","BC",V.Color.LtGreen)
+	Function.Intrinsic.Variable.SetProperty("000052","FC",V.Color.Black)
+F.Intrinsic.Control.Else
+	Function.Intrinsic.Variable.SetProperty("000052","BC",V.Color.White)
+	Function.Intrinsic.Variable.SetProperty("000052","FC",V.Color.Black)
+Function.Intrinsic.Control.EndIf
+
+F.ODBC.conx!rst1.Close
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ChangeColorOL_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.ChangeColorOL.End
+
+Program.Sub.ChangeColorSD.Start
+F.Intrinsic.Control.SetErrorHandler("ChangeColorSD_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+Variable.Local.sPart.Declare(String)
+Variable.Local.sSql.Declare(String)
+
+Function.Intrinsic.String.GSSPartString(Variable.Passed.000003,Variable.Passed.000099,Variable.Local.sPart)
+F.Intrinsic.String.Trim(V.Local.sPart,V.Local.sPart)
+Function.Intrinsic.String.Build("SELECT * FROM GCG_3167_INV_SIMPART WHERE PART = '{0}'",Variable.Local.sPart,Variable.Local.sSql)
+Function.ODBC.Connection!conx.OpenRecordsetRO("rst1",Variable.Local.sSql)
+
+Function.Intrinsic.Control.If(Variable.ODBC.conx!rst1.EOF,=,False)
+	' Note found change color of notes button
+	Function.Intrinsic.Variable.SetProperty("000003","BC",V.Color.LtGreen)
+	Function.Intrinsic.Variable.SetProperty("000003","FC",V.Color.Black)
+F.Intrinsic.Control.Else
+	Function.Intrinsic.Variable.SetProperty("000003","BC",V.Color.White)
+	Function.Intrinsic.Variable.SetProperty("000003","FC",V.Color.Black)
+Function.Intrinsic.Control.EndIf
+
+F.ODBC.conx!rst1.Close
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ChangeColorSD_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3167_INV_SIMPARTVar1.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Subexit)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.ChangeColorSD.End
+
+Program.Sub.Comments.Start
+${$0$}$GAB_INV_SIMPARTVar1$}$RRODRIGUEZ$}$8/14/2012
+${$1$}$$}$$}$16$}$11410$}$RES010A-SCRIPT-1-HOOK$}$6/5/2013 3:44:42 PM$}$(Program: RE0072; Screen: RES010A)
+
+${$1$}$$}$$}$15$}$16768$}$JBS0011M-SCRIPT-1-HOOK$}$10/18/2012 10:52:50 AM$}$(Program: JB0011GI; Screen: JBS0011M)
+
+${$1$}$$}$$}$14$}$16761$}$JBS0011M-POPULATE-HOOK$}$10/18/2012 10:52:28 AM$}$(Program: JB0011GI; Screen: JBS0011M)
+
+${$1$}$$}$$}$13$}$16475$}$BMS0020E-SCRIPT-1-HOOK(BOM LINE ITEM)$}$10/18/2012 10:51:58 AM$}$(Program: BM0020GI; Screen: BMS0020E)
+
+${$1$}$$}$$}$12$}$16385$}$BMS0020E-POPULATE-HOOK (BOM LINES MAINT)$}$10/18/2012 10:51:02 AM$}$(Program: BM0020GI; Screen: BMS0020E)
+
+${$1$}$$}$$}$11$}$10120$}$INS010B-POPULATE-HOOK$}$8/14/2012 10:25:45 AM$}$(Program: INVMAIN; Screen: INS010B)
+
+${$1$}$$}$$}$10$}$10210$}$INS010B-SCRIPT-1-HOOK$}$8/14/2012 10:25:31 AM$}$(Program: INVMAIN; Screen: INS010B)
+
+${$1$}$$}$$}$9$}$12010$}$OES0201I-POPULATE-HOOK$}$8/14/2012 10:25:11 AM$}$(Program: ORD201; Screen: OES0201I)
+
+${$1$}$$}$$}$8$}$12045$}$OES0201I-LOAD-PART-HOOK$}$8/14/2012 10:24:51 AM$}$(Program: ORD201; Screen: OES0201I)
+
+${$1$}$$}$$}$7$}$12410$}$OES0201I-SCRIPT-1-HOOK$}$8/14/2012 10:24:36 AM$}$(Program: ORD201; Screen: OES0201I)
+
+${$1$}$$}$$}$6$}$12705$}$Line Changed Hook$}$8/14/2012 10:24:11 AM$}$(Program: ORD201; Screen: OES0201I)
+
+${$1$}$$}$$}$5$}$14045$}$INS500-POPULATE-HOOK$}$8/14/2012 10:23:51 AM$}$(Program: INV500GI ; Screen: INS500)
+
+${$1$}$$}$$}$4$}$14050$}$INS500-LOAD-DATA-HOOK$}$8/14/2012 10:23:29 AM$}$(Program: INV500GI ; Screen: INS500)
+
+${$1$}$$}$$}$3$}$14070$}$INS500-SCRIPT1-BUTN-HOOK$}$8/14/2012 10:23:02 AM$}$(Program: INV500GI ; Screen: INS500)
+
+${$1$}$$}$$}$2$}$34410$}$PUSA60M-POPULATE-HOOK$}$8/14/2012 10:22:42 AM$}$(Program: PURA60GM; Screen: PUSA60M)
+
+${$1$}$$}$$}$1$}$34430$}$PUSA60M-SCRIPT-1-HOOK$}$8/14/2012 10:22:15 AM$}$(Program: PURA60GM; Screen: PUSA60M)
+
+${$2$}$$}$$}$0$}$4$}$SQL Table$}$12/9/2015 3:04:17 PM$}$CREATE TABLE "GCG_3167_INV_SIMPART"(
+ "ID" IDENTITY DEFAULT '0',
+ "PART" CHAR(20) NOT NULL ,
+ "PARTSIM" CHAR(20) NOT NULL
+);
+CREATE INDEX "GCG_INV_SIMPARTK00" ON "GCG_3167_INV_SIMPART"("PART");
+CREATE INDEX "GCG_INV_SIMPARTK01" ON "GCG_3167_INV_SIMPART"("PARTSIM");
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$Show similar parts for a given part, has the option to add inventory parts to the similar parts list and delete similar part from the similar part list. Applies: Inventory Master, Order Lines (also color), Supply and Demand (also color), Auto Purchasing, Router Lines, Bom Lines, WO Sequences.
+${$4$}$0$}$$}$0$}$-1$}$BCC$}$12/9/2015 3:01:15 PM$}$GS Certified
+Program.Sub.Comments.End
+
